@@ -1,7 +1,7 @@
-﻿version: 3.0.1.{build}
+﻿version: 1.0.1.{build}
 
 environment:
-  packageVersion: 3.0.1
+  packageVersion: 1.0.1
 
 init:
 - ps: $env:buildVersion = "$env:packageVersion.$env:appveyor_build_number"
