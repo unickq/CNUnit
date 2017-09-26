@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <UsingTask
+      AssemblyFile="$(SolutionDir)packages\ILMerge.Tools.MSBuildToolTask.2.14.1208.49\tools\ILMerge.Tools.MSBuildToolTask.dll"
+      TaskName="ILMerge.Tools.MSBuildToolTask.ILMergeTool"
+    />
+
+  <PropertyGroup>
+    <MergedOutDir>$(OutDir)..\</MergedOutDir>
+    
+    <BuildDependsOn Condition="$(Configuration) == 'Release'">
+      $(BuildDependsOn);
+      MergeAssemblies;
+    </BuildDependsOn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ILMergeInputAssemblies Include="$(OutDir)CNUnit.exe" />
+    <ILMergeInputAssemblies Include="$(OutDir)NDesk.Options.dll" />
+    <ILMergeInputAssemblies Include="$(OutDir)ManyConsole.dll" />
+  </ItemGroup>
+
+  <Target Name="MergeAssemblies">
+    <ILMergeTool
+        InputAssemblies="@(ILMergeInputAssemblies)"
+        OutputFile="$(MergedOutDir)CNUnit.exe"
+        ToolPath="$(SolutionDir)packages\ILMerge.Tools.2.14.1208\tools\ILMerge.exe"
+        />
+  </Target>
+</Project>

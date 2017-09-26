@@ -1,0 +1,35 @@
+﻿version: 3.0.1.{build}
+
+environment:
+  packageVersion: 3.0.1
+
+init:
+- ps: $env:buildVersion = "$env:packageVersion.$env:appveyor_build_number"
+- ps: if(!$env:appveyor_repo_tag_name){ $env:nugetVersion = $env:packageVersion+ "-beta-" + $env:appveyor_build_number } else { $env:nugetVersion = $env:appveyor_repo_tag_name}
+- ps: Update-AppveyorBuild -Version $env:buildVersion
+    
+
+image: Visual Studio 2017
+configuration: Release
+platform: Any CPU
+
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: $(buildVersion)
+  assembly_file_version: $(buildVersion)
+  assembly_informational_version: $(nugetVersion)
+  
+before_build:
+- nuget restore
+
+test: off
+
+build:
+  verbosity: minimal
+  
+after_build:
+- ps: NuGet pack nuget.nuspec -version "$env:nugetVersion"
+ 
+artifacts:
+- path: '**\CNUnit*.nupkg'
