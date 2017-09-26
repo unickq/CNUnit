@@ -5,6 +5,7 @@
     <version>$version$</version>
     <title>CNUnit</title>
     <authors>Nick Chursin</authors>
+	<iconUrl>https://raw.githubusercontent.com/unickq/CNUnit/master/icon.png</iconUrl>
 	<owners>Nick Chursin</owners>
     <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
     <projectUrl>https://github.com/unickq/cnunit</projectUrl>
