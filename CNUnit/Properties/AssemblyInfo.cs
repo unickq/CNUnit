@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Tool for parralel test execution using multiple NUnit console instances.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("unickq")]
-[assembly: AssemblyProduct("")]
+[assembly: AssemblyProduct("https://github.com/unickq/CNUnit")]
 [assembly: AssemblyCopyright("Nick Chursin")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

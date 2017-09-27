@@ -8,84 +8,99 @@ using System.Threading.Tasks;
 using CNUnit.Tools;
 using ManyConsole;
 
+// ReSharper disable InconsistentNaming
+
 namespace CNUnit.Commands
 {
     public class RunCommand : ConsoleCommand
     {
+        private const int Success = 0;
+        private const int Error = 1;
+        private const int Failure = -1;
+
         private readonly List<string> _testLists = new List<string>();
-        public string NunitPath = Utils.TryToFindNUnit();
-        public string Outdir;
-        public string TestDllPath;
 
-        public string Threads = "1";
+        public bool CNUnit_Debug;
+        public string CNUnit_Outdir;
+        public ReportType CNUnit_ReportType = ReportType.NUnit3;
+        public string CNUnit_Parse_Rules;
 
-//        public string Where;
-        public string NunitOutputParseRules = string.Empty;
+        public string Tests_Dll_Path;
+        public bool Tests_Skip;
+        public bool Tests_Keep_Cases;
+        public bool Tests_Shuffle;
 
-        public bool JUnit;
-        public bool Nunit2;
-        public bool NotRun;
-        public bool PrintNunitOutput;
-        public bool KeepTestLists;
-        public bool Debug;
-        public bool Shuffle;
-        public bool WaitNunit;
+        public string NUnit_Where;
+        public string NUnit_Executable = Utils.TryToFindNUnit();
+        public string NUnit_Workers = "1";
+        public bool NUnit_Wait;
+        public bool NUnit_No_Output;
+
 
         public RunCommand()
         {
-            IsCommand("run", "Generate test lists and run tests");
+            IsCommand(".");
 
-            HasOption("e|exe=", "NUnit3-console executable path.", v => NunitPath = v);
-            HasOption("w|threads=", "Thread count for tests execution.", v => Threads = v);
-            HasOption("t|dll=", "Dll with NUnit tests", v => TestDllPath = v);
-//            HasOption("w|where=", "Test selection EXPRESSION indicating what tests will be run. See NUnit3 docs", v => Where = v);
-            HasOption("parse=",
-                "Tests parsing rule. --parse=Chrome;Firefox will find tests containings Chrome and Firefox in test name.",
-                v => NunitOutputParseRules = v);
-            HasOption("o|outdir=",
+            HasLongDescription("CNUnit - tool to generate testlists, run tests and transform results using NUnit console runner.");
+
+            HasOption("e|exe=", "NUnit3-console executable path.", p => NUnit_Executable = p);
+            HasRequiredOption("t|dll=", "Dll with NUnit tests.", v => Tests_Dll_Path = v);           
+            HasOption("w|workers:", "Thread count for tests execution.", v => NUnit_Workers = v);
+            HasOption("s|shuffle:", "Shuffle tests in test list.", v => Tests_Shuffle = v != null);
+            HasOption("q|quite:", "Hide NUnit console output.", v => NUnit_No_Output = v != null);
+            HasOption("f|format:", "Output xml format. junit, nunit2, nunit3 - by default.", v => CNUnit_ReportType = Utils.GetReportType(v));
+            HasOption("where:",
+                "NUnit selection EXPRESSION indicating what tests will be run.\nSee https://github.com/nunit/docs/wiki/Test-Selection-Language",
+                v => NUnit_Where = v);
+            HasOption("parse:",
+                "Own selection rules. --parse=Chrome;Firefox will find tests containings Chrome and Firefox in test name.",
+                v => CNUnit_Parse_Rules = v);
+            HasOption("outdir:",
                 "Path of the directory to use for output files. If  not specified, defaults to the current directory.",
-                v => Outdir = v);
-            HasOption("s|shuffle", "Shuffle tests before execution.", v => Shuffle = v != null);
-            HasOption("nunit2", "NUnit 2 test output format.", v => Nunit2 = v != null);
-            HasOption("junit", "JUnit test output format. Using JUnit xlst file.", v => JUnit = v != null);
-            HasOption("tlCreate", "Generate test lists without execution.", v => NotRun = v != null);
-            HasOption("tlKeep", "Keep test lists after exection.", v => KeepTestLists = v == null);
-            HasOption("print", "Print test output after tests execution.", v => PrintNunitOutput = v != null);
-            HasOption("debug", "Debug CNUnit output.", v => Debug = v != null);
-            HasOption("wait", "NUnit3-console won't be closed after tests finished.", v => WaitNunit = v != null);
+                v => CNUnit_Outdir = v);
+         
+            HasOption("tlGenerate:", "Generate test lists without execution.", v => Tests_Skip = v != null);
+            HasOption("tlKeep:", "Keep test lists after exection.", v => Tests_Keep_Cases = v == null);
+            HasOption("debug:", "Debug CNUnit output.", v => CNUnit_Debug = v != null);
+            HasOption("wait:", "NUnit3-console won't be closed after tests finished.", v => NUnit_Wait = v != null);
+            
         }
+
 
         public override int Run(string[] remainingArguments)
         {
             try
             {
-                OutDirSetup();
-                if (!IsFileExist(NunitPath, "NUnit executable"))
+                if (!Utils.IsValidNunitConsole(NUnit_Executable))
                 {
-                    Utils.WriteLine("NUnit executable is not set", ConsoleColor.Red);
-                    return 1;
-                }
-                if (!IsFileExist(TestDllPath, "DLL with NUnit tests"))
-                {
-                    Utils.WriteLine("DLL with NUnit tests is not set", ConsoleColor.Red);
-                    return 1;
-                }
-                if (JUnit & Nunit2)
-                {
-                    Utils.WriteLine("Only one output format is alowed. Please use NUnit2 or JUnit only",
-                        ConsoleColor.Red);
-                    return 1;
+                    Utils.WriteLine("Error: Invalid NUnit Console executable", ConsoleColor.Red);
+                    return Error;
                 }
 
-                SaveFiles();
-                if (!NotRun) RunTests();
-                if (!KeepTestLists) RemoveTestLists();
-                return 0;
+                if (!File.Exists(Tests_Dll_Path))
+                {
+                    Utils.WriteLine("Error: Test dll is not found", ConsoleColor.Red);
+                    return Error;
+                }
+
+                Utils.OutDirSetup(CNUnit_Outdir);
+
+                if (NUnit_Wait) NUnit_No_Output = true;
+
+                GenerateTestLists();
+
+                if (!Tests_Skip)
+                {
+                    RunTests();
+                    if (!Tests_Keep_Cases) RemoveTestLists();
+                }
+
+                return Success;
             }
             catch (Exception e)
             {
                 Utils.WriteLine(e.Message, ConsoleColor.Red);
-                return -1;
+                return Failure;
             }
             finally
             {
@@ -93,30 +108,47 @@ namespace CNUnit.Commands
             }
         }
 
-        private void SaveFiles()
+
+        /// <summary>
+        /// Generates the test lists from NUnit3 console --explore.
+        /// </summary>
+        private void GenerateTestLists()
         {
             Utils.WriteLine("\nParsing NUnit tests...\n", ConsoleColor.Green);
+            var arguments = $"{NUnit_Executable} {Tests_Dll_Path} --explore:cnunit.cases;format=cases";
+
+            if (!string.IsNullOrEmpty(NUnit_Where))
+            {
+                arguments += $" --where \"{NUnit_Where}\"";
+            }
+
+            if (CNUnit_Debug)
+            {
+                Utils.WriteLine($"\nGenerate test list arguments: {arguments}", ConsoleColor.Blue);
+            }
+
             var process = new Process
             {
                 StartInfo =
                 {
-                    FileName = NunitPath,
+                    FileName = NUnit_Executable,
                     UseShellExecute = false,
-                    CreateNoWindow = true,
-                    Arguments = $"{NunitPath} {TestDllPath} --explore:cnunit.cases;format=cases"
+                    CreateNoWindow = true,                    
+                    Arguments = arguments
                 }
             };
+
             process.Start();
             process.WaitForExit();
-            var nameFile = Path.GetFileNameWithoutExtension(TestDllPath);
+            var nameFile = Tests_Dll_Path.BuildTestName();
             var exploreResult = Path.Combine(Environment.CurrentDirectory, "cnunit.cases");
             var list = File.ReadAllLines(exploreResult).ToList();
             File.Delete(exploreResult);
 
-            if (!string.IsNullOrEmpty(NunitOutputParseRules))
+            if (!string.IsNullOrEmpty(CNUnit_Parse_Rules))
             {
                 var parsedList = new List<string>();
-                var parseArray = NunitOutputParseRules.Split(';');
+                var parseArray = CNUnit_Parse_Rules.Split(';');
                 foreach (var parsing in parseArray)
                 {
                     parsedList.AddRange(list.Where(v => v.Contains(parsing)));
@@ -124,11 +156,11 @@ namespace CNUnit.Commands
                 list = parsedList;
             }
 
-            if (Shuffle) list.Shuffle();
+            if (Tests_Shuffle) list.Shuffle();
 
-            var dividerLists = list.Divide(int.Parse(Threads));
+            var dividerLists = list.Divide(int.Parse(NUnit_Workers));
             Utils.WriteLine($"Total tests count: {list.Count}", ConsoleColor.Cyan);
-            Utils.WriteLine($"\nDividing tests by {Threads} and saving to to lists:", ConsoleColor.Cyan);
+            Utils.WriteLine($"\nDividing tests by {NUnit_Workers} and saving to to lists:", ConsoleColor.Cyan);
             for (var i = 0; i < dividerLists.Length; i++)
             {
                 var fileTestBuilder = new StringBuilder();
@@ -138,7 +170,7 @@ namespace CNUnit.Commands
                 }
                 var outPut = fileTestBuilder.ToString();
                 if (outPut.Length <= 0) continue;
-                var path = Path.Combine(Outdir, $"{nameFile}{i}.txt");
+                var path = Path.Combine(CNUnit_Outdir, $"{nameFile}{i}.txt");
                 _testLists.Add(path);
                 Utils.WriteLine($"Saved {dividerLists[i].Count} tests into {path}", ConsoleColor.Green);
                 File.WriteAllText(path, outPut);
@@ -146,6 +178,9 @@ namespace CNUnit.Commands
         }
 
 
+        /// <summary>
+        /// Launch NUnit console instances and runs the tests.
+        /// </summary>
         private void RunTests()
         {
             var allProcesses = Task.Factory.StartNew(() =>
@@ -158,16 +193,12 @@ namespace CNUnit.Commands
                     {
                         StartInfo =
                         {
-                            FileName = NunitPath,
+                            FileName = NUnit_Executable,
                             Arguments = BuildNUnitTestListArguments(test)
                         }
                     };
 
-                    if (PrintNunitOutput)
-                    {
-                        pr.StartInfo.RedirectStandardInput = true;
-                        pr.StartInfo.UseShellExecute = false;
-                    }
+                    pr.StartInfo.UseShellExecute = NUnit_No_Output;
                     pr.Start();
                     processes.Add(pr);
                 }
@@ -178,8 +209,7 @@ namespace CNUnit.Commands
                 }
                 foreach (var test in _testLists)
                 {
-                    Utils.WriteLine(
-                        $"Test report saved - {Outdir}\\{Path.GetFileNameWithoutExtension(test)}.xml",
+                    Utils.WriteLine($"Test report saved - {CNUnit_Outdir}\\{test.BuildTestName()}.xml",
                         ConsoleColor.Green);
                 }
             });
@@ -187,74 +217,51 @@ namespace CNUnit.Commands
             Utils.WriteLine("Test execution finished", ConsoleColor.Cyan);
         }
 
+        /// <summary>
+        /// Builds NUnit console run parameters.
+        /// </summary>
+        /// <returns></returns>
         private string BuildNUnitTestListArguments(string test)
         {
             var sb = new StringBuilder();
-            sb.Append(TestDllPath);
+            sb.Append(Tests_Dll_Path);
             sb.Append($" --testlist=\"{test}\"");
-            if (Nunit2)
+
+            switch (CNUnit_ReportType)
             {
-                sb.Append($" --result=\"{Path.GetFileNameWithoutExtension(test)}.xml;format=nunit2\" ");
-            }
-            else if (JUnit)
-            {
-                if (!File.Exists(Constants.JUnitXsltFile))
-                {
-                    Utils.DownloadJUnitTransform();
+                case ReportType.Nunit2:
+                    sb.Append($" --result=\"{test.BuildTestName()}.xml;format=nunit2\" ");
+                    break;
+                case ReportType.JUnit:
+                    if (!File.Exists(Constants.JUnitXsltFile))
+                        Utils.DownloadJUnitTransform();
                     sb.Append(
-                        $" --result=\"{Path.GetFileNameWithoutExtension(test)}.xml\";transform=\"{Constants.JUnitXsltFile}\" ");
-                }
+                        $" --result=\"{test.BuildTestName()}.xml\";transform=\"{Constants.JUnitXsltFile}\" ");
+                    break;
+                default:
+                    sb.Append($" --result=\"{test.BuildTestName()}.xml\" ");
+                    break;
             }
-            else
-            {
-                sb.Append($" --result=\"{Path.GetFileNameWithoutExtension(test)}.xml\" ");
-            }
-            if (!string.IsNullOrEmpty(Outdir)) sb.Append($" --work=\"{Outdir}\"").Append(" ");
-            if (WaitNunit) sb.Append(" --wait ");
-            if (Debug) Utils.WriteLine("!NUnit params: " + sb, ConsoleColor.Blue);
+            if (!string.IsNullOrEmpty(CNUnit_Outdir)) sb.Append($" --work=\"{CNUnit_Outdir}\"").Append(" ");
+            if (NUnit_Wait) sb.Append(" --wait ");
+            if (CNUnit_Debug) Utils.WriteLine("!NUnit params: " + sb, ConsoleColor.Blue);
             return sb.ToString();
         }
 
-        private void OutDirSetup()
-        {
-            if (string.IsNullOrWhiteSpace(Outdir))
-                Outdir = Constants.OutDirDefault;
 
-            try
-            {
-                if (Directory.Exists(Outdir))
-                {
-                    Directory.Delete(Outdir, true);
-                }
-                Directory.CreateDirectory(Outdir);
-            }
-            catch (IOException ioex)
-            {
-                Utils.WriteLine(ioex.Message, ConsoleColor.Red);
-            }
-
-            Utils.WriteLine($"Working directory: {Outdir}\n", ConsoleColor.Cyan);
-        }
-
+        /// <summary>
+        /// Remoevs tests list files from disk.
+        /// </summary>
         private void RemoveTestLists()
         {
-            if (Debug)
+            if (CNUnit_Debug)
                 Utils.WriteLine("\nRemoving test lists:", ConsoleColor.Blue);
             foreach (var testList in _testLists)
             {
                 File.Delete(testList);
-                if (Debug)
+                if (CNUnit_Debug)
                     Utils.WriteLine($"Removed {testList}", ConsoleColor.DarkBlue);
             }
-        }
-
-        private static bool IsFileExist(string parameter, string message)
-        {
-            if (string.IsNullOrWhiteSpace(parameter))
-                return false;
-            if (File.Exists(parameter)) return true;
-            Utils.WriteLine($"Unable to find {message}", ConsoleColor.Red);
-            return false;
         }
     }
 }

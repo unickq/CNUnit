@@ -33,44 +33,46 @@ namespace CNUnit.Tools
             Console.ResetColor();
         }
 
-        private static readonly Random Rng = new Random();
-
-        public static void Shuffle<T>(this IList<T> list)
+        public static bool IsFileExist(string parameter, string message)
         {
-            var n = list.Count;
-            while (n > 1)
-            {
-                n--;
-                var k = Rng.Next(n + 1);
-                var value = list[k];
-                list[k] = list[n];
-                list[n] = value;
-            }
+            if (String.IsNullOrWhiteSpace(parameter))
+                return false;
+            if (File.Exists(parameter)) return true;
+            WriteLine($"Unable to find {message}", ConsoleColor.Red);
+            return false;
         }
 
-        public static List<T>[] Divide<T>(this List<T> list, int parts)
+        public static void OutDirSetup(string outdir)
         {
-            if (list == null)
-                throw new Exception("List == NULL");
-            if (parts < 1)
-                throw new Exception("Partiotions count < 1");
-
-            var partitions = new List<T>[parts];
-            var maxSize = (int) Math.Ceiling(list.Count / (double) parts);
-            var k = 0;
-
-            for (var i = 0; i < partitions.Length; i++)
+            if (String.IsNullOrWhiteSpace(outdir))
+                outdir = Constants.OutDirDefault;
+            try
             {
-                partitions[i] = new List<T>();
-                for (var j = k; j < k + maxSize; j++)
+                if (Directory.Exists(outdir))
                 {
-                    if (j >= list.Count)
-                        break;
-                    partitions[i].Add(list[j]);
+                    Directory.Delete(outdir, true);
                 }
-                k += maxSize;
+                Directory.CreateDirectory(outdir);
             }
-            return partitions;
+            catch (IOException ioex)
+            {
+                WriteLine(ioex.Message, ConsoleColor.Red);
+            }
+
+            WriteLine($"Working directory: {outdir}\n", ConsoleColor.Cyan);
+        }
+
+        public static ReportType GetReportType(string report)
+        {
+            switch (report)
+            {
+                case "nunit2":
+                    return ReportType.Nunit2;
+                case "junit":
+                    return ReportType.JUnit;
+                default:
+                    return ReportType.NUnit3;
+            }
         }
 
         public static string TryToFindNUnit(string name = "NUnit3-console.exe")
@@ -86,7 +88,14 @@ namespace CNUnit.Tools
                 break;
             }
             if (!File.Exists(name)) return null;
-            return FileVersionInfo.GetVersionInfo(name).LegalCopyright.Contains("Charlie Poole") ? name : null;
+            return IsValidNunitConsole(name) ? name : null;
+        }
+
+        public static bool IsValidNunitConsole(string path)
+        {
+            if (!File.Exists(path)) return false;
+            var fileVer = FileVersionInfo.GetVersionInfo(path);
+            return fileVer.ProductName != null && fileVer.ProductName.Equals("NUnit 3");
         }
 
         public static void DownloadJUnitTransform()
