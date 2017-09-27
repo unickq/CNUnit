@@ -18,5 +18,9 @@ using NUnit.Framework;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+#if !DEBUG
 [assembly: Parallelizable(ParallelScope.None)]
-//[assembly: LevelOfParallelism(4)]
+#else
+[assembly: LevelOfParallelism(4)]
+[assembly: Parallelizable(ParallelScope.Fixtures)]
+#endif
