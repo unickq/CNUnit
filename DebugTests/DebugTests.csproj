@@ -7,8 +7,8 @@
     <ProjectGuid>{1EDE0496-BB9E-40D0-9E6B-0D2C1421D877}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ClassLibrary1</RootNamespace>
-    <AssemblyName>ClassLibrary1</AssemblyName>
+    <RootNamespace>DebugTests</RootNamespace>
+    <AssemblyName>DebugTests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
