@@ -14,7 +14,7 @@ namespace DebugTests
         {
             Console.WriteLine(new string('-', 80));
             Console.WriteLine($"I'm test {TestContext.CurrentContext.Test.FullName}");
-            Thread.Sleep(3000);
+            Thread.Sleep(1000);
             Console.WriteLine("DONE");
         }
 
@@ -24,7 +24,7 @@ namespace DebugTests
         {
             Console.WriteLine(new string('-', 80));
             Console.WriteLine($"I'm test {TestContext.CurrentContext.Test.FullName}");
-            Thread.Sleep(3000);
+            Thread.Sleep(1000);
             Console.WriteLine("DONE");
         }
 

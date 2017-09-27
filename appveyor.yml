@@ -1,7 +1,7 @@
-﻿version: 1.0.1.{build}
+﻿version: 1.1.0.{build}
 
 environment:
-  packageVersion: 1.0.1
+  packageVersion: 1.1.0
 
 init:
 - ps: $env:buildVersion = "$env:packageVersion.$env:appveyor_build_number"
@@ -23,7 +23,10 @@ assembly_info:
 before_build:
 - nuget restore
 
-test: off
+test:
+  assemblies:
+    only:
+    - CNUnit.Test.dll
 
 build:
   verbosity: minimal
