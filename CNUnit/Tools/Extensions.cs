@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 
 namespace CNUnit.Tools
 {
@@ -24,29 +26,14 @@ namespace CNUnit.Tools
             }
         }
 
-        public static List<T>[] Divide<T>(this List<T> list, int parts)
+        public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> list, int parts)
         {
-            if (list == null)
-                throw new Exception("List == NULL");
-            if (parts < 1)
-                throw new Exception("Partiotions count < 1");
-
-            var partitions = new List<T>[parts];
-            var maxSize = (int)Math.Ceiling(list.Count / (double)parts);
-            var k = 0;
-
-            for (var i = 0; i < partitions.Length; i++)
-            {
-                partitions[i] = new List<T>();
-                for (var j = k; j < k + maxSize; j++)
-                {
-                    if (j >= list.Count)
-                        break;
-                    partitions[i].Add(list[j]);
-                }
-                k += maxSize;
-            }
-            return partitions;
-        }  
+            var i = 0;
+            var splits = from item in list
+                group item by i++ % parts
+                into part
+                select part.AsEnumerable();
+            return splits;
+        }
     }
 }

@@ -32,7 +32,7 @@ namespace CNUnit.Commands
 
         public string NUnit_Where;
         public string NUnit_Executable = Utils.TryToFindNUnit();
-        public string NUnit_Workers = "1";
+        public int NUnit_Workers = 1;
         public bool NUnit_Wait;
         public bool NUnit_No_Output;
 
@@ -41,14 +41,27 @@ namespace CNUnit.Commands
         {
             IsCommand(".");
 
-            HasLongDescription("CNUnit - tool to generate testlists, run tests and transform results using NUnit console runner.");
+            HasLongDescription(
+                "CNUnit - tool to generate testlists, run tests and transform results using NUnit console runner.");
 
             HasOption("e|exe=", "NUnit3-console executable path.", p => NUnit_Executable = p);
-            HasRequiredOption("t|dll=", "Dll with NUnit tests.", v => Tests_Dll_Path = v);           
-            HasOption("w|workers=", "Thread count for tests execution.", v => NUnit_Workers = v);
+            HasRequiredOption("t|dll=", "Dll with NUnit tests.", v => Tests_Dll_Path = v);
+            HasOption("w|workers=", "Thread count for tests execution.", v =>
+            {
+                try
+                {
+                    NUnit_Workers = int.Parse(v);
+                }
+                catch (Exception)
+                {
+                    NUnit_Workers = 1;
+                }
+                if (NUnit_Workers == 0) NUnit_Workers = 1;
+            });
             HasOption("s|shuffle", "Shuffle tests in test list.", v => Tests_Shuffle = v != null);
             HasOption("q|quite", "Hide NUnit console output.", v => NUnit_No_Output = v != null);
-            HasOption("f|format=", "Output xml format. junit, nunit2, nunit3 - by default.", v => CNUnit_ReportType = Utils.GetReportType(v));
+            HasOption("f|format=", "Output xml format. junit, nunit2, nunit3 - by default.",
+                v => CNUnit_ReportType = Utils.GetReportType(v));
             HasOption("where=",
                 "NUnit selection EXPRESSION indicating what tests will be run.\nSee https://github.com/nunit/docs/wiki/Test-Selection-Language",
                 v => NUnit_Where = v);
@@ -58,12 +71,11 @@ namespace CNUnit.Commands
             HasOption("outdir:",
                 "Path of the directory to use for output files. If  not specified, defaults to the current directory.",
                 v => CNUnit_Outdir = v);
-         
+
             HasOption("tlGenerate", "Generate test lists without execution.", v => Tests_Skip = v != null);
             HasOption("tlKeep", "Keep test lists after exection.", v => Tests_Keep_Cases = v != null);
             HasOption("debug", "Debug CNUnit output.", v => CNUnit_Debug = v != null);
             HasOption("wait", "NUnit3-console won't be closed after tests finished.", v => NUnit_Wait = v != null);
-            
         }
 
 
@@ -104,7 +116,7 @@ namespace CNUnit.Commands
                 {
                     Utils.WriteLine(e.GetType(), ConsoleColor.DarkYellow);
                     Utils.WriteLine(e.StackTrace, ConsoleColor.DarkYellow);
-                }                
+                }
                 return Failure;
             }
             finally
@@ -138,7 +150,7 @@ namespace CNUnit.Commands
                 {
                     FileName = NUnit_Executable,
                     UseShellExecute = false,
-                    CreateNoWindow = true,                    
+                    CreateNoWindow = true,
                     Arguments = arguments
                 }
             };
@@ -160,25 +172,24 @@ namespace CNUnit.Commands
                 }
                 list = parsedList;
             }
+
             if (Tests_Shuffle) list.Shuffle();
 
-            var dividerLists = list.Divide(int.Parse(NUnit_Workers));
             Utils.WriteLine($"Total tests count: {list.Count}", ConsoleColor.Cyan);
             Utils.WriteLine($"\nDividing tests by {NUnit_Workers} and saving to to lists:", ConsoleColor.Cyan);
-            for (var i = 0; i < dividerLists.Length; i++)
+            int i = 0;
+            foreach (var listPart in list.Split(NUnit_Workers))
             {
-                
                 var fileTestBuilder = new StringBuilder();
-                foreach (var line in dividerLists[i])
+                var listPartElements = listPart as IList<string> ?? listPart.ToList();
+                foreach (var listPartElement in listPartElements)
                 {
-                    fileTestBuilder.AppendLine(line);
+                    fileTestBuilder.AppendLine(listPartElement);
                 }
-             
                 var outPut = fileTestBuilder.ToString().TrimEnd('\n', '\r');
-                if (outPut.Length <= 0) continue;     
-                var path = Path.Combine(CNUnit_Outdir, $"{nameFile}{i}.txt");
+                var path = Path.Combine(CNUnit_Outdir, $"{nameFile}{++i}.txt");
                 _testLists.Add(path);
-                Utils.WriteLine($"Saved {dividerLists[i].Count} tests into {path}", ConsoleColor.Green);
+                Utils.WriteLine($"Saved {listPartElements.Count()} tests into {path}", ConsoleColor.Green);
                 File.WriteAllText(path, outPut);
             }
         }

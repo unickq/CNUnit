@@ -9,11 +9,13 @@ namespace CNUnit.Test.Utils
         {
             get
             {
+                yield return new TestCaseData(null, 1);
+                yield return new TestCaseData("string", 1);
                 yield return new TestCaseData(1, 1);
-                yield return new TestCaseData(2, 2);
-                yield return new TestCaseData(5, 5);
-                yield return new TestCaseData(6, 5);
-                yield return new TestCaseData(7, 7);
+                yield return new TestCaseData(-1, 1);
+                yield return new TestCaseData(0, 1);
+                yield return new TestCaseData(20, 20);
+                yield return new TestCaseData(32000, 20);
             }
         }
 
@@ -32,8 +34,7 @@ namespace CNUnit.Test.Utils
             get
             {
                 yield return new TestCaseData("\"test =~ T1\"", 1, 1);
-                yield return new TestCaseData("\"test =~ T1\"", 2, 2);
-                yield return new TestCaseData("\"test =~ T1\"", 6, 5);             
+                yield return new TestCaseData("\"test =~ T1\"", 2, 2);          
                 yield return new TestCaseData("\"test =~ T1\"", 9, 9);             
                 yield return new TestCaseData("\"test =~ T1\"", 10, 9);             
                 yield return new TestCaseData("\"test =~ Fail\"", 2, 1);             

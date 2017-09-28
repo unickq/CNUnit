@@ -45,7 +45,6 @@ namespace CNUnit.Tools
 
         public static void OutDirSetup(string outdir)
         {
-            Console.WriteLine(outdir);
             if (Directory.Exists(outdir))
                 Directory.Delete(outdir, true);
             Thread.Sleep(100);
