@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using CNUnit.Tools;
 using ManyConsole;
 
@@ -111,12 +112,7 @@ namespace CNUnit.Commands
             }
             catch (Exception e)
             {
-                Utils.WriteLine(e.Message, ConsoleColor.Red);
-                if (CNUnit_Debug)
-                {
-                    Utils.WriteLine(e.GetType(), ConsoleColor.DarkYellow);
-                    Utils.WriteLine(e.StackTrace, ConsoleColor.DarkYellow);
-                }
+                e.DebugCNunit(CNUnit_Debug, e.Message);
                 return Failure;
             }
             finally
@@ -200,6 +196,7 @@ namespace CNUnit.Commands
         /// </summary>
         private void RunTests()
         {
+            List<string> xmlList = new List<string>();
             var allProcesses = Task.Factory.StartNew(() =>
             {
                 Utils.WriteLine("\nExecuting tests...", ConsoleColor.Cyan);
@@ -227,12 +224,14 @@ namespace CNUnit.Commands
                 }
                 foreach (var test in _testLists)
                 {
-                    Utils.WriteLine($"Test report saved - {CNUnit_Outdir}\\{test.BuildTestName()}.xml",
-                        ConsoleColor.Green);
+                    var path = Path.Combine(CNUnit_Outdir, test.BuildTestName() + ".xml");
+                    xmlList.Add(path);
+                    Utils.WriteLine($"Test report saved - {path}", ConsoleColor.Green);
                 }
             });
             allProcesses.Wait();
             Utils.WriteLine("Test execution finished", ConsoleColor.Cyan);
+            if (CNUnit_ReportType == ReportType.NUnit3) NUnitXmlUpdate(xmlList);
         }
 
         /// <summary>
@@ -243,7 +242,6 @@ namespace CNUnit.Commands
         {
             var sb = new StringBuilder();
             sb.Append(Tests_Dll_Path);
-//            sb.Append(" --seed ");
             sb.Append($" --testlist=\"{test}\"");
 
             switch (CNUnit_ReportType)
@@ -280,6 +278,29 @@ namespace CNUnit.Commands
                 if (CNUnit_Debug)
                     Utils.WriteLine($"Removed {testList}", ConsoleColor.DarkBlue);
             }
+        }
+
+        private void NUnitXmlUpdate(List<string> xmls)
+        {
+            try
+            {
+                foreach (var xml in xmls)
+                {
+                    var doc = new XmlDocument();
+                    doc.LoadXml(File.ReadAllText(xml));
+                    var attributeCollection = doc.DocumentElement?.SelectNodes("//test-suite")?[0].Attributes;
+                    if (attributeCollection != null)
+                    {
+                        var xmlAttributeCollection = attributeCollection?["name"];
+                        xmlAttributeCollection.Value = Path.GetFileNameWithoutExtension(xml);
+                    }
+                    doc.Save(xml);
+                }
+            }
+            catch (Exception e)
+            {
+                e.DebugCNunit(CNUnit_Debug, "Unable to parse NUnit xml results");
+            }    
         }
     }
 }

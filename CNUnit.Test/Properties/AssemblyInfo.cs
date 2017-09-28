@@ -15,7 +15,6 @@ using NUnit.Framework;
 
 [assembly: Guid("c2fdf51a-e6be-4fb6-b19a-244711d9bb64")]
 
-// [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 #if !DEBUG

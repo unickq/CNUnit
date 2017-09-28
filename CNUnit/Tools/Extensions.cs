@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
@@ -34,6 +33,14 @@ namespace CNUnit.Tools
                 into part
                 select part.AsEnumerable();
             return splits;
+        }
+
+        public static void DebugCNunit(this Exception e, bool isTrue, string message)
+        {
+            Utils.WriteLine($"CNunit exception: {message}", ConsoleColor.Red);
+            if (!isTrue) return;
+            Utils.WriteLine(e.GetType(), ConsoleColor.DarkRed);
+            Utils.WriteLine(e.StackTrace, ConsoleColor.DarkRed);
         }
     }
 }
