@@ -217,6 +217,7 @@ namespace CNUnit.Commands
 
                     pr.StartInfo.UseShellExecute = NUnit_No_Output;
                     pr.Start();
+                    if (CNUnit_Debug) Utils.WriteLine("CNUnit: Run tests params " + pr.StartInfo.Arguments, ConsoleColor.Blue);
                     processes.Add(pr);
                 }
                 foreach (var pr in processes)
@@ -242,6 +243,7 @@ namespace CNUnit.Commands
         {
             var sb = new StringBuilder();
             sb.Append(Tests_Dll_Path);
+//            sb.Append(" --seed ");
             sb.Append($" --testlist=\"{test}\"");
 
             switch (CNUnit_ReportType)
@@ -260,8 +262,7 @@ namespace CNUnit.Commands
                     break;
             }
             if (!string.IsNullOrEmpty(CNUnit_Outdir)) sb.Append($" --work=\"{CNUnit_Outdir}\"").Append(" ");
-            if (NUnit_Wait) sb.Append(" --wait ");
-            if (CNUnit_Debug) Utils.WriteLine("!NUnit params: " + sb, ConsoleColor.Blue);
+            if (NUnit_Wait) sb.Append(" --wait ");        
             return sb.ToString();
         }
 

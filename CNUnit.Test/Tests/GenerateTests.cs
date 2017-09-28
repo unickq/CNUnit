@@ -8,7 +8,7 @@ namespace CNUnit.Test.Tests
     public class GenerateTests : BaseTest
     {
         [Test, TestCaseSource(typeof(DataClass), nameof(DataClass.ThreadNotRunValidation))]
-        public void ValidateGenerationFeature(object thread, int files)
+        public void CheckThreads(int thread, int files)
         {
             var d = D;
             d.Add("--tlGenerate", null);
