@@ -21,7 +21,7 @@ namespace CNUnit.Commands
         private readonly List<string> _testLists = new List<string>();
 
         public bool CNUnit_Debug;
-        public string CNUnit_Outdir;
+        public string CNUnit_Outdir = Constants.OutDirDefault;
         public ReportType CNUnit_ReportType = ReportType.NUnit3;
         public string CNUnit_Parse_Rules;
 
@@ -55,7 +55,7 @@ namespace CNUnit.Commands
             HasOption("parse=",
                 "Own selection rules. --parse=Chrome;Firefox will find tests containings Chrome and Firefox in test name.",
                 v => CNUnit_Parse_Rules = v);
-            HasOption("outdir=",
+            HasOption("outdir:",
                 "Path of the directory to use for output files. If  not specified, defaults to the current directory.",
                 v => CNUnit_Outdir = v);
          
@@ -100,6 +100,11 @@ namespace CNUnit.Commands
             catch (Exception e)
             {
                 Utils.WriteLine(e.Message, ConsoleColor.Red);
+                if (CNUnit_Debug)
+                {
+                    Utils.WriteLine(e.GetType(), ConsoleColor.DarkYellow);
+                    Utils.WriteLine(e.StackTrace, ConsoleColor.DarkYellow);
+                }                
                 return Failure;
             }
             finally
@@ -155,7 +160,6 @@ namespace CNUnit.Commands
                 }
                 list = parsedList;
             }
-
             if (Tests_Shuffle) list.Shuffle();
 
             var dividerLists = list.Divide(int.Parse(NUnit_Workers));
@@ -163,13 +167,15 @@ namespace CNUnit.Commands
             Utils.WriteLine($"\nDividing tests by {NUnit_Workers} and saving to to lists:", ConsoleColor.Cyan);
             for (var i = 0; i < dividerLists.Length; i++)
             {
+                
                 var fileTestBuilder = new StringBuilder();
                 foreach (var line in dividerLists[i])
                 {
                     fileTestBuilder.AppendLine(line);
                 }
-                var outPut = fileTestBuilder.ToString();
-                if (outPut.Length <= 0) continue;
+             
+                var outPut = fileTestBuilder.ToString().TrimEnd('\n', '\r');
+                if (outPut.Length <= 0) continue;     
                 var path = Path.Combine(CNUnit_Outdir, $"{nameFile}{i}.txt");
                 _testLists.Add(path);
                 Utils.WriteLine($"Saved {dividerLists[i].Count} tests into {path}", ConsoleColor.Green);

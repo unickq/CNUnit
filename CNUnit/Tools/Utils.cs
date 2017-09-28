@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Reflection;
+using System.Threading;
 
 namespace CNUnit.Tools
 {
@@ -26,7 +27,7 @@ namespace CNUnit.Tools
             Console.WriteLine(new string('-', 82));
         }
 
-        public static void WriteLine(object obj, ConsoleColor color)
+        public static void WriteLine(object obj, ConsoleColor color = ConsoleColor.White)
         {
             Console.ForegroundColor = color;
             Console.WriteLine(obj);
@@ -44,21 +45,11 @@ namespace CNUnit.Tools
 
         public static void OutDirSetup(string outdir)
         {
-            if (String.IsNullOrWhiteSpace(outdir))
-                outdir = Constants.OutDirDefault;
-            try
-            {
-                if (Directory.Exists(outdir))
-                {
-                    Directory.Delete(outdir, true);
-                }
-                Directory.CreateDirectory(outdir);
-            }
-            catch (IOException ioex)
-            {
-                WriteLine(ioex.Message, ConsoleColor.Red);
-            }
-
+            Console.WriteLine(outdir);
+            if (Directory.Exists(outdir))
+                Directory.Delete(outdir, true);
+            Thread.Sleep(100);
+            Directory.CreateDirectory(outdir);
             WriteLine($"Working directory: {outdir}\n", ConsoleColor.Cyan);
         }
 
