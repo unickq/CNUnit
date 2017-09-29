@@ -231,7 +231,7 @@ namespace CNUnit.Commands
             });
             allProcesses.Wait();
             Utils.WriteLine("Test execution finished", ConsoleColor.Cyan);
-            if (CNUnit_ReportType == ReportType.NUnit3) NUnitXmlUpdate(xmlList);
+            NUnitXmlUpdate(xmlList);
         }
 
         /// <summary>
@@ -286,14 +286,30 @@ namespace CNUnit.Commands
             {
                 foreach (var xml in xmls)
                 {
+                    Console.WriteLine("!!!!");
                     var doc = new XmlDocument();
                     doc.LoadXml(File.ReadAllText(xml));
-                    var attributeCollection = doc.DocumentElement?.SelectNodes("//test-suite")?[0].Attributes;
-                    if (attributeCollection != null)
+                    if (CNUnit_ReportType == ReportType.JUnit)
                     {
-                        var xmlAttributeCollection = attributeCollection?["name"];
-                        xmlAttributeCollection.Value = Path.GetFileNameWithoutExtension(xml);
+                        var testSuiteNodeList = doc.DocumentElement?.SelectNodes("//testsuite");
+                        if (testSuiteNodeList != null)
+                            foreach (XmlNode testSuiteNode in testSuiteNodeList)
+                            {
+                                if (testSuiteNode.Attributes != null)
+                                    testSuiteNode.Attributes["name"].Value =
+                                        Path.GetFileNameWithoutExtension(xml)+ "."+ Path.GetRandomFileName();
+                            } 
                     }
+                    else
+                    {
+                        var attributeCollection = doc.DocumentElement?.SelectNodes("//test-suite")?[0].Attributes;
+                        if (attributeCollection != null)
+                        {
+                            var xmlAttributeCollection = attributeCollection?["name"];
+                            xmlAttributeCollection.Value = Path.GetFileNameWithoutExtension(xml);
+                        }
+                    }
+                
                     doc.Save(xml);
                 }
             }
