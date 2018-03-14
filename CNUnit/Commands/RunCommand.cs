@@ -7,13 +7,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using CNUnit.Tools;
-using ManyConsole;
 
 // ReSharper disable InconsistentNaming
 
 namespace CNUnit.Commands
 {
-    public class RunCommand : ConsoleCommand
+    public class RunCommand
     {
         private const int Success = 0;
         private const int Error = 1;
@@ -38,49 +37,10 @@ namespace CNUnit.Commands
         public bool NUnit_No_Output;
 
 
-        public RunCommand()
-        {
-            IsCommand(".");
-
-            HasLongDescription(
-                "CNUnit - tool to generate testlists, run tests and transform results using NUnit console runner.");
-
-            HasOption("e|exe=", "NUnit3-console executable path.", p => NUnit_Executable = p);
-            HasRequiredOption("t|dll=", "Dll with NUnit tests.", v => Tests_Dll_Path = v);
-            HasOption("w|workers=", "Thread count for tests execution.", v =>
-            {
-                try
-                {
-                    NUnit_Workers = int.Parse(v);
-                }
-                catch (Exception)
-                {
-                    NUnit_Workers = 1;
-                }
-                if (NUnit_Workers == 0) NUnit_Workers = 1;
-            });
-            HasOption("s|shuffle", "Shuffle tests in test list.", v => Tests_Shuffle = v != null);
-            HasOption("q|quite", "Hide NUnit console output.", v => NUnit_No_Output = v != null);
-            HasOption("f|format=", "Output xml format. junit, nunit2, nunit3 - by default.",
-                v => CNUnit_ReportType = Utils.GetReportType(v));
-            HasOption("where=",
-                "NUnit selection EXPRESSION indicating what tests will be run.\nSee https://github.com/nunit/docs/wiki/Test-Selection-Language",
-                v => NUnit_Where = v);
-            HasOption("parse=",
-                "Own selection rules. --parse=Chrome;Firefox will find tests containings Chrome and Firefox in test name.",
-                v => CNUnit_Parse_Rules = v);
-            HasOption("outdir:",
-                "Path of the directory to use for output files. If  not specified, defaults to the current directory.",
-                v => CNUnit_Outdir = v);
-
-            HasOption("tlGenerate", "Generate test lists without execution.", v => Tests_Skip = v != null);
-            HasOption("tlKeep", "Keep test lists after exection.", v => Tests_Keep_Cases = v != null);
-            HasOption("debug", "Debug CNUnit output.", v => CNUnit_Debug = v != null);
-            HasOption("wait", "NUnit3-console won't be closed after tests finished.", v => NUnit_Wait = v != null);
-        }
+       
 
 
-        public override int Run(string[] remainingArguments)
+        public int Run(string[] remainingArguments)
         {
             try
             {
