@@ -17,7 +17,6 @@ namespace CNUnit.Test.Tests
         public void SetUp()
         {     
             Dir = GetTemporaryDirectory();
-            Console.WriteLine(Dir);
             D = new Dictionary<string, object>
             {
                 {"-e", NUnitConsole},
@@ -30,6 +29,7 @@ namespace CNUnit.Test.Tests
         [TearDown]
         public void TearDown()
         {
+            Console.WriteLine(TestContext.CurrentContext.Result.Outcome.Status);
             Directory.Delete(Dir, true);
         }
     }
