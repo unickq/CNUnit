@@ -16,8 +16,7 @@
 
   <ItemGroup>
     <ILMergeInputAssemblies Include="$(OutDir)CNUnit.exe" />
-    <ILMergeInputAssemblies Include="$(OutDir)NDesk.Options.dll" />
-    <ILMergeInputAssemblies Include="$(OutDir)ManyConsole.dll" />
+    <ILMergeInputAssemblies Include="$(OutDir)CommandLineParser" />
   </ItemGroup>
 
   <Target Name="MergeAssemblies">

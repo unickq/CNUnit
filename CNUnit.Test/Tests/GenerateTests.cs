@@ -5,6 +5,7 @@ using NUnit.Framework;
 namespace CNUnit.Test.Tests
 {
     [TestFixture]
+    [Parallelizable(ParallelScope.Fixtures)]
     public class GenerateTests : BaseTest
     {
         [Test, TestCaseSource(typeof(DataClass), nameof(DataClass.ThreadNotRunValidation))]

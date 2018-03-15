@@ -9,8 +9,6 @@ namespace CNUnit.Test.Utils
         {
             get
             {
-                yield return new TestCaseData(null, 1);
-                yield return new TestCaseData("string", 1);
                 yield return new TestCaseData(1, 1);
                 yield return new TestCaseData(-1, 1);
                 yield return new TestCaseData(0, 1);

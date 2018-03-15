@@ -1,4 +1,4 @@
-﻿namespace CNUnit.Tools
+﻿namespace CNUnit
 {
     public enum ReportType
     {

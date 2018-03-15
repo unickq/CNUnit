@@ -12,7 +12,7 @@ namespace CNUnit.Test.Utils
     public class TestUtils
     {
         public static string CNUnit =>
-            Path.Combine(TestContext.CurrentContext.TestDirectory.Replace(".Test", ""), "CNUnit.exe");
+            Path.Combine(TestContext.CurrentContext.TestDirectory.Replace(".Test", ""), "net45\\CNUnit.exe");
 
         public static string Tests =>
             Path.Combine(TestContext.CurrentContext.TestDirectory.Replace("CNUnit.Test", "DebugTests"),
@@ -56,7 +56,7 @@ namespace CNUnit.Test.Utils
                 sb.Append(d.Key);
                 if (d.Value != null)
                 {
-                    sb.Append("=");
+                    sb.Append(" ");
                     sb.Append(d.Value);
                 }
 

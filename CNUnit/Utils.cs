@@ -3,9 +3,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Reflection;
-using System.Threading;
 
-namespace CNUnit.Tools
+namespace CNUnit
 {
     public static class Utils
     {
@@ -17,7 +16,7 @@ namespace CNUnit.Tools
             Console.ResetColor();
         }
 
-        public static void PrintCopyright()
+        public static void PrintInfo()
         {
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("\n" + new string('-', 82));
@@ -31,24 +30,6 @@ namespace CNUnit.Tools
             Console.ForegroundColor = color;
             Console.WriteLine(obj);
             Console.ResetColor();
-        }
-
-        public static bool IsFileExist(string parameter, string message)
-        {
-            if (String.IsNullOrWhiteSpace(parameter))
-                return false;
-            if (File.Exists(parameter)) return true;
-            WriteLine($"Unable to find {message}", ConsoleColor.Red);
-            return false;
-        }
-
-        public static void OutDirSetup(string outdir)
-        {
-            if (Directory.Exists(outdir))
-                Directory.Delete(outdir, true);
-            Thread.Sleep(100);
-            Directory.CreateDirectory(outdir);
-            WriteLine($"Working directory: {outdir}\n", ConsoleColor.Cyan);
         }
 
         public static ReportType GetReportType(string report)
@@ -89,12 +70,12 @@ namespace CNUnit.Tools
 
         public static void DownloadJUnitTransform()
         {
-            var file = Constants.JUnitXsltFile;
+            var file = App.JUnitXsltFile;
             try
             {
                 if (File.Exists(file)) File.Delete(file);
                 var wc = new WebClient();
-                wc.DownloadFile(new Uri(Constants.JUnitXslt), Constants.JUnitXsltFile);
+                wc.DownloadFile(new Uri(App.JUnitXslt), App.JUnitXsltFile);
             }
             catch (Exception e)
             {

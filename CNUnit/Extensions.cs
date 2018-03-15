@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace CNUnit.Tools
+namespace CNUnit
 {
     public static class Extensions
     {
@@ -27,6 +27,7 @@ namespace CNUnit.Tools
 
         public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> list, int parts)
         {
+            if (parts < 1) parts = 1;
             var i = 0;
             var splits = from item in list
                 group item by i++ % parts
