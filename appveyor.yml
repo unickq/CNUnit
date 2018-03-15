@@ -10,7 +10,7 @@ dotnet_csproj:
   patch: true
   file: '**\*.csproj'
   version: '{version}'
-  package_version: '{version}-alfa'
+  package_version: '1.3.0-alfa{build}'
   assembly_version: '{version}'
   file_version: '{version}'
   informational_version: '{version}'
@@ -22,3 +22,6 @@ test:
   assemblies:
     only:
     - CNUnit.Test.dll
+artifacts:
+  - path: CNUnit*.nupkg
+ 

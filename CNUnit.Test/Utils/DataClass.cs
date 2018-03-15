@@ -9,7 +9,6 @@ namespace CNUnit.Test.Utils
         {
             get
             {
-                yield return new TestCaseData(1, 1);
                 yield return new TestCaseData(-1, 1);
                 yield return new TestCaseData(0, 1);
                 yield return new TestCaseData(20, 20);
