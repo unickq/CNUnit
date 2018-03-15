@@ -49,7 +49,6 @@
     <Compile Include="Tests\BaseTest.cs" />
     <Compile Include="Tests\RunTests.cs" />
     <Compile Include="Tests\WhereTests.cs" />
-    <Compile Include="Tests\xxx.cs" />
     <Compile Include="Utils\DataClass.cs" />
     <Compile Include="Tests\GenerateTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

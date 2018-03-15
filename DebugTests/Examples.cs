@@ -8,7 +8,7 @@ namespace DebugTests
     [TestFixture]
     public class Examples
     {
-        [Test, TestCaseSource(typeof(MyDataClass), "TestCases")]
+        [Test, TestCaseSource(typeof(MyDataClass), nameof(MyDataClass.TestCases))]
         [Category("Debug")]
         public void T1(int n, int d)
         {
@@ -18,7 +18,7 @@ namespace DebugTests
             Console.WriteLine("DONE");
         }
 
-        [Test, TestCaseSource(typeof(MyDataClass), "TestCases")]
+        [Test, TestCaseSource(typeof(MyDataClass), nameof(MyDataClass.TestCases))]
         [Category("Release")]
         public void T2(int n, int d)
         {
