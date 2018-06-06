@@ -32,19 +32,6 @@ namespace CNUnit
             Console.ResetColor();
         }
 
-        public static ReportType GetReportType(string report)
-        {
-            switch (report)
-            {
-                case "nunit2":
-                    return ReportType.Nunit2;
-                case "junit":
-                    return ReportType.JUnit;
-                default:
-                    return ReportType.NUnit3;
-            }
-        }
-
         public static string TryToFindNUnit(string name = "NUnit3-console.exe")
         {
             var envPath = Environment.GetEnvironmentVariable("PATH");
