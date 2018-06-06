@@ -2,32 +2,34 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
+    <TargetFrameworks>net45;netcoreapp2.0</TargetFrameworks>
     <StartupObject>CNUnit.Program</StartupObject>
     <Authors>Nick Chursin</Authors>
     <PackageId>CNUnit</PackageId>
-    <Company></Company>
     <Product>CNUnit</Product>
-    <AssemblyVersion>1.3.0.1</AssemblyVersion>
-    <FileVersion>1.3.0.1</FileVersion>
-    <PackageVersion>1.3.0.0</PackageVersion>
+    <AssemblyVersion>1.3.0.2</AssemblyVersion>
+    <FileVersion>1.3.0.2</FileVersion>
+    <PackageVersion>1.3.0-beta1</PackageVersion>
     <Description>CNUnit - tool to run concurrent tests using many instances of NUnit Console Runner. For example for not threadsafe tests</Description>
-    <Copyright></Copyright>
+    <Summary>CNUnit - tool to run concurrent tests using many instances of NUnit Console Runner</Summary>
     <AssemblyName>CNUnit</AssemblyName>
     <RootNamespace>CNUnit</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.3.0-alfa1</Version>
+    <Version>1.3.0-alfa2</Version>
+    <Tags>nunit</Tags>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <ApplicationIcon>nunitP.ico</ApplicationIcon>
     <PackageIconUrl>https://raw.githubusercontent.com/unickq/CNUnit/master/icon.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/unickq/CNUnit</PackageProjectUrl>
     <RepositoryUrl>https://github.com/unickq/CNUnit</RepositoryUrl>
     <PackageLicenseUrl>https://github.com/unickq/CNUnit/blob/master/LICENSE</PackageLicenseUrl>
-
+    <PackageTags>nunit</PackageTags>
+    <PackageReleaseNotes>Newer format</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.2.1" />
+    <PackageReference Include="CommandLineParser" Version="2.2.1" PrivateAssets="all" />
+    <BuildOutputInPackage Include="$(OutputPath)CommandLine.dll" />
+    <Content Include="nunit3-junit.xslt" Pack="true" />
   </ItemGroup>
-  
 </Project>
