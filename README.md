@@ -16,7 +16,7 @@ Command line tool for tests execution in multiple NUnit console instances.
 
 
 ```
-> CNUnit.exe --dll=".\build\TestAssembly.dll" --parse="Chrome" 
+> CNUnit.exe --dll ".\build\TestAssembly.dll" --parse="Chrome" 
 -w=10 --outdir="build\cnunit-reports" 
 --format=junit --shuffle
 ```

@@ -28,7 +28,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.2.1" PrivateAssets="all" />
+    <PackageReference Include="CommandLineParser" Version="2.3.0" PrivateAssets="all" />
     <BuildOutputInPackage Include="$(OutputPath)CommandLine.dll" />
     <Content Include="nunit3-junit.xslt" Pack="true" />
   </ItemGroup>

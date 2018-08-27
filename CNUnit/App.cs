@@ -233,7 +233,7 @@ namespace CNUnit
 
             switch (Options.OutputFortmat)
             {
-                case ReportType.Nunit2:
+                case ReportType.NUnit2:
                     sb.Append($" --result=\"{test.BuildTestName()}.xml;format=nunit2\" ");
                     break;
                 case ReportType.JUnit:

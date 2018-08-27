@@ -3,7 +3,7 @@
     public enum ReportType
     {
         NUnit3,
-        Nunit2,
+        NUnit2,
         JUnit
     }
 }
