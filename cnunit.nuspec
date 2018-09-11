@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+   <metadata>
+      <id>CNUnit</id>
+      <version>$version$</version>
+      <title>CNUnit</title>
+      <authors>Nick Chursin</authors>
+      <iconUrl>https://raw.githubusercontent.com/unickq/CNUnit/master/icon.png</iconUrl>
+      <owners>Nick Chursin</owners>
+      <licenseUrl>https://github.com/unickq/CNUnit/blob/master/LICENSE</licenseUrl>
+      <projectUrl>https://github.com/unickq/CNUnit</projectUrl>
+      <requireLicenseAcceptance>false</requireLicenseAcceptance>
+      <summary>CNUnit - tool to run concurrent tests using many instances of NUnit Console Runner.</summary>
+      <description>CNUnit - tool to run concurrent tests using many instances of NUnit Console Runner. For example for not threadsafe tests</description>
+      <tags>cnunit nunit test testing runner</tags>
+      <copyright>Copyright (c) 2018 Nick Chursin</copyright>
+      <releaseNotes>Migrated to CommandLine.dll. Fix for NUnit Console 3.9.0</releaseNotes>
+   </metadata>
+   <files>
+      <file src="CNUnit\bin\CNUnit.exe" target="tools" />
+   </files>
+</package>

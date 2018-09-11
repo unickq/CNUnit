@@ -58,7 +58,7 @@ namespace CNUnit
             if (Options.NUnitPath == null)
                 Options.NUnitPath = Utils.TryToFindNUnit();
          
-            if (!Utils.IsValidNunitConsole(Options.NUnitPath))
+            if (!Utils.IsValidNUnitConsole(Options.NUnitPath))
                 throw new SystemException("Error: Invalid NUnit Console executable");
         }
 

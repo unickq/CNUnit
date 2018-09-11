@@ -45,14 +45,15 @@ namespace CNUnit
                 break;
             }
             if (!File.Exists(name)) return null;
-            return IsValidNunitConsole(name) ? name : null;
+            return IsValidNUnitConsole(name) ? name : null;
         }
 
-        public static bool IsValidNunitConsole(string path)
+        public static bool IsValidNUnitConsole(string path)
         {
             if (!File.Exists(path)) return false;
             var fileVer = FileVersionInfo.GetVersionInfo(path);
-            return fileVer.ProductName != null && fileVer.ProductName.Equals("NUnit 3");
+            Console.WriteLine(fileVer);
+            return fileVer.ProductName != null && fileVer.ProductName.Contains("NUnit");
         }
 
         public static void DownloadJUnitTransform()
